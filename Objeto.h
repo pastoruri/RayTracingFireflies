@@ -41,6 +41,17 @@ public:
     bool interseccion(Rayo &rayo, float &t, vec3 &normal);
 };
 
+class Cubo : public Objeto{
+public:
+    vec3 b0;
+    vec3 b1;
+    Cubo(vec3 _b0, vec3 _b1){
+        b0 = _b0;
+        b1 = _b1;
+    }
+    bool interseccion(Rayo &rayo, float &t, vec3 &normal);
+};
+
 class Cilindro: public Objeto {
 public:
     vec3 pa, pb;

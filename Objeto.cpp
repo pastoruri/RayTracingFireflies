@@ -29,18 +29,11 @@ bool Esfera::interseccion(Rayo &rayo, float &t, vec3 &normal) {
 }
 
 bool Plano::interseccion(Rayo &rayo, float &t, vec3 &normal_s) {
-    /*t = -(normal.punto(rayo.ori) + d) / (normal.punto(rayo.dir));
-    if (t > 0) {
-        normal_s = normal;
-        return true;
-    }
-    return false;*/
     float nd = normal.punto(rayo.dir);
     if (nd == 0) return false;
     t = (normal*d - rayo.ori).punto(normal) / nd;
     if (t < 0) return false;
     normal_s = nd > 0 ? -normal : normal;
-    //normal_s = normal;
     return true;
 }
 
@@ -59,10 +52,58 @@ vec3 Esfera::getColor(Rayo &rayo) {
         vec3 p2 = rayo.ori + rayo.dir * t2;
         float distancia = (p2-p1).modulo();
         float sigma_a = 0.1;
-        //float transmision = exp(-distancia * sigma_a);
         return color * (1-distancia/radio);
     }
     return color;
+}
+
+
+bool Cubo::interseccion(Rayo &rayo, float &t, vec3 &normal) {
+    float tmin, tmax, tymin, tymax, tzmin, tzmax; 
+    vec3 bounds[2];
+    bounds[0] = b0;
+    bounds[1] = b1; 
+    vec3 invdir;
+    invdir.x = 1/rayo.dir.x;
+    invdir.y = 1/rayo.dir.y;
+    invdir.z = 1/rayo.dir.z;
+    int sign[3];
+    sign[0] = (invdir.x < 0); 
+    sign[1] = (invdir.y < 0); 
+    sign[2] = (invdir.z < 0); 
+
+    tmin = (bounds[sign[0]].x - rayo.ori.x) * invdir.x; 
+    tmax = (bounds[1-sign[0]].x - rayo.ori.x) * invdir.x; 
+    tymin = (bounds[sign[1]].y - rayo.ori.y) * invdir.y; 
+    tymax = (bounds[1-sign[1]].y - rayo.ori.y) * invdir.y;
+
+    if ((tmin > tymax) || (tymin > tmax)) 
+            return false;
+
+    if (tymin > tmin) 
+        tmin = tymin; 
+    if (tymax < tmax) 
+        tmax = tymax; 
+    
+    tzmin = (bounds[sign[2]].z - rayo.ori.z) * invdir.z; 
+    tzmax = (bounds[1-sign[2]].z - rayo.ori.z) * invdir.z; 
+
+    if ((tmin > tzmax) || (tzmin > tmax)) 
+            return false; 
+ 
+    if (tzmin > tmin) 
+        tmin = tzmin; 
+    if (tzmax < tmax) 
+        tmax = tzmax; 
+ 
+    t = tmin; 
+ 
+    if (t < 0) { 
+        t = tmax; 
+        if (t < 0) return false; 
+    } 
+ 
+    return true; 
 }
 
 bool Cilindro::interseccion(Rayo &rayo, float &t, vec3 &normal) {

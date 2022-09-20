@@ -62,8 +62,8 @@ void Camara::renderizar(vector<Objeto*> &objetos, vector<Luz*> &luces, string no
 
 vec3 Camara::calcularColor(Rayo rayo, vector<Objeto*> &objetos, vector<Luz*> &luces, int prof){
     vec3 colores(0,0,0);
+    vec3 color(0,0,0);
     for(auto luz : luces){
-        vec3 color(0,0,0);
         float t_tmp, t;
         Objeto *pObj;
         //Luz luz = *(luces[0]);
@@ -158,19 +158,13 @@ vec3 Camara::calcularColor(Rayo rayo, vector<Objeto*> &objetos, vector<Luz*> &lu
                 rayo_reflexivo.dir.normalize();
                 color_reflexivo = calcularColor(rayo_reflexivo, objetos, luces, prof + 1);
             }
-            color = pObj->color * (ambiente + difusa + especular);
+            colores = colores + difusa + especular;
+            color = pObj->color *  (ambiente + (colores/luces.size()));
             color = color + color_reflexivo* kr + color_refractivo*kt;
-            //color.max_to_one()
+            color.max_to_one();
         }
-            colores.x += color.x;
-            colores.y += color.y;
-            colores.z += color.z;
     }
-    colores.x/luces.size();
-    colores.y/luces.size();
-    colores.z/luces.size();
-    colores.max_to_one();
-    return colores;
+    return color;
 }
 
 vec3 Camara::refract(vec3 I, vec3 N, float ior)
